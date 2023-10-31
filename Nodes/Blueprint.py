@@ -66,8 +66,8 @@ class Blueprint(GeneNode):
     @staticmethod
     def mutate_blueprint(individual):
         """Мутация индивида"""
-        to_mutate = rnd.sample([node for node in individual
-                                if isinstance(node, (GroupOfContact, Connector))], ceil(individual.size / 10))
+        to_mutate = [node for node in individual if isinstance(node, (GroupOfContact, Connector))]
+        to_mutate = rnd.sample(to_mutate, k = ceil(len(to_mutate) / 10))
         for node in to_mutate:
             node.mutate()
         return individual,
@@ -75,9 +75,10 @@ class Blueprint(GeneNode):
     @staticmethod
     def mate_blueprint(individual1, individual2):
         """Скрещивание индивидов"""
-        for node1, node2 in zip(individual1, individual2):
-            if node1 == node2:
-                node1.children, node2.children = Blueprint.__crossover_list(list(node1.children), list(node2.children))
+        for node1 in individual1:
+            for node2 in individual2:
+                if node1.name == node2.name and len(node1.children) and len(node2.children):
+                    node1.children, node2.children = Blueprint.__crossover_list(list(node1.children), list(node2.children))
         return individual1, individual2
 
     @staticmethod
@@ -99,7 +100,7 @@ class Blueprint(GeneNode):
         not_equal_list2 = []
         # Определение различных элементов и их индексов
         for i in range(len(list1)):
-            if list1[i] != list2[i]:
+            if list1[i].name != list2[i].name:
                 not_equal_index.append(i)
                 not_equal_list1.append(list1[i])
                 not_equal_list2.append(list2[i])

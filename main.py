@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 
 bp.add_empty_contacts()
 print(GeneNode.render_tree(bp))
-bp.plot.show()
 
 # Метод register позволяет зарегистрировать в toolbox собственную функция
 # toolbox.register(<Псевдоним>, <Функция>, <Параметр1>...<ПараметрN>)
@@ -34,7 +33,8 @@ toolbox.register("individual", Blueprint.create_individual, bp)
 # Регистрация функции для создания популяции
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 pop = toolbox.population(settings["gen_size"])
-
+pop.sort(key= Blueprint.evaluate)
+pop[-1].plot.show()
 # Регистрация функции для скрещивания
 toolbox.register("mate", Blueprint.mate_blueprint)
 
@@ -50,8 +50,6 @@ toolbox.register("evaluate", Blueprint.evaluate)
 # Создание популяции
 pop = toolbox.population(settings["gen_size"])
 
-hof = tools.HallOfFame(1)
-
 stats = tools.Statistics(lambda ind: ind.fitness.wvalues[0])
 stats.register("best", numpy.max)
 
@@ -59,7 +57,7 @@ pop, log = algorithms.eaSimple(pop, toolbox,
                                cxpb=settings["cxpb"],
                                mutpb=settings["mutpb"],
                                ngen=settings["ngen"],
-                               stats=stats, halloffame=hof, verbose=True)
+                               stats=stats)
 pop.sort(key=Blueprint.evaluate)
 pop[0].plot.show()
 gen = log.select("gen")
